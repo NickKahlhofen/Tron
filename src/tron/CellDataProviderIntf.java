@@ -10,11 +10,13 @@ package tron;
  * @author Nick
  */
 public interface CellDataProviderIntf {
-    
+
     public int getCellWidth();
+
     public int getCellhight();
-    
+
     public int getSystemCoordX(int x, int y);
+
     public int getSystemCoordY(int x, int y);
-    
+
 }

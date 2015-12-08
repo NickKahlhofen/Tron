@@ -7,9 +7,11 @@ package tron;
 
 import environment.Environment;
 import grid.Grid;
+import images.ResourceTools;
 //import images.ResourceTools;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 //import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -24,19 +26,22 @@ class Computer extends Environment implements CellDataProviderIntf {
 
     private Grid grid;
     private Tron JB;
-    private ArrayList<Barrier> myBarriers;
+    private Tron JB2;
+    private ArrayList<Barrier> barriers;
 
     public Computer() {
-        grid = new Grid(55, 30, 20, 20, new Point(20, 50), Color.BLACK);
-        JB = new Tron(Direction.Left, grid);
+        this.setBackground(ResourceTools.loadImageFromResource("Tron/tron.jpg").getScaledInstance(1000, 700, Image.SCALE_SMOOTH));
+        grid = new Grid(48, 31, 20, 20, new Point(20, 50), Color.BLUE);
+        JB = new Tron(Direction.Left, Color.BLUE, grid);
+        JB2 = new Tron(Direction.Down, Color.ORANGE, grid);
 
-        myBarriers = new ArrayList<>(); 
-        myBarriers.add(new Barrier(10, 15, Color.gray, this, false));
-        myBarriers.add(new Barrier(10, 15, Color.gray, this, false));
-        myBarriers.add(new Barrier(10, 15, Color.gray, this, false));
-        myBarriers.add(new Barrier(10, 15, Color.gray, this, false));
-        myBarriers.add(new Barrier(10, 15, Color.gray, this, false));
-        
+        barriers = new ArrayList<>();
+        barriers.add(new Barrier(10, 15, Color.gray, this, false));
+        barriers.add(new Barrier(10, 15, Color.gray, this, false));
+        barriers.add(new Barrier(10, 15, Color.gray, this, false));
+        barriers.add(new Barrier(10, 15, Color.gray, this, false));
+        barriers.add(new Barrier(10, 15, Color.gray, this, false));
+
     }
 
     @Override
@@ -45,30 +50,52 @@ class Computer extends Environment implements CellDataProviderIntf {
     }
     int moveDelay = 0;
     int moveDelayLimit = 3;
-  
+
+    int moveDelay2 = 0;
+    int moveDelayLimit2 = 3;
 
     @Override
     public void timerTaskHandler() {
-       // System.out.println("Come to me" + counter++);
+        // System.out.println("Come to me" + counter++);
 
         if (JB != null) {
-           if (moveDelay >= moveDelayLimit){
-               moveDelay = 0;
-               JB.move();
-           } else {
+            if (moveDelay >= moveDelayLimit) {
+                moveDelay = 0;
+                JB.move();
+            } else {
                 moveDelay++;
-           }
-            
-          
-            checkIntersections();
+            }
+        }
+
+        if (JB2 != null) {
+            if (moveDelay2 >= moveDelayLimit2) {
+                moveDelay2 = 0;
+                JB2.move();
+            } else {
+                moveDelay2++;
+            }
+
+        }
+        checkIntersections();
+    }
+
+    public void checkIntersections() {
+        if (barriers != null) {
+
+            for (Barrier barrier : barriers) {
+                if (barrier.getLocation().equals(JB.getHead())) {
+                    // System.out.println("Game Over");
+                    JB.addHealth(-1000);
+
+                }
+
+            }
+
+            if (barriers.contains(JB.getHead())) {
+                System.out.println("Game Over");
+            }
         }
     }
-    
-    public void checkIntersections(){
-        if (myBarriers.contains(JB.getHead())) {
-            System.out.println("Game Over");
-        }
-}
 
     @Override
     public void keyPressedHandler(KeyEvent e) {
@@ -83,6 +110,15 @@ class Computer extends Environment implements CellDataProviderIntf {
             JB.setDirection(Direction.Down);
         } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
             JB.setDirection(Direction.Left);
+        }
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            JB2.setDirection(Direction.Up);
+        } else if (e.getKeyCode() == KeyEvent.VK_D) {
+            JB2.setDirection(Direction.Right);
+        } else if (e.getKeyCode() == KeyEvent.VK_S) {
+            JB2.setDirection(Direction.Down);
+        } else if (e.getKeyCode() == KeyEvent.VK_A) {
+            JB2.setDirection(Direction.Left);
         }
 
     }
@@ -102,17 +138,20 @@ class Computer extends Environment implements CellDataProviderIntf {
         }
         if (JB != null) {
             JB.draw(graphics);
-            
+
         }
-        
-        if (myBarriers != null){  
-            for (int i = 0; i < myBarriers.size(); i++){
-                myBarriers.get(i).draw(graphics);
+        if (JB2 != null) {
+            JB2.draw(graphics);
+
+        }
+
+        if (barriers != null) {
+            for (int i = 0; i < barriers.size(); i++) {
+                barriers.get(i).draw(graphics);
             }
+        }
     }
-    }
-    
-        
+
     @Override
     public int getCellWidth() {
         return grid.getCellWidth();

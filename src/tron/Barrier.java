@@ -7,35 +7,41 @@ package tron;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 
 /**
  *
  * @author Nick
  */
 public class Barrier {
-    public void draw(Graphics graphics){
+
+    public void draw(Graphics graphics) {
         graphics.setColor(getColor());
         graphics.fill3DRect(CellData.getSystemCoordX(getX(), getY()),
-                            CellData.getSystemCoordY(getX(), getY()),
-                            CellData.getCellWidth(),
-                            CellData.getCellhight(),
-                            true);
-    }   
-    
-    public Barrier( int x, int y, Color color , CellDataProviderIntf cellData, boolean breakable){
+                CellData.getSystemCoordY(getX(), getY()),
+                CellData.getCellWidth(),
+                CellData.getCellhight(),
+                true);
+    }
+
+    public Barrier(int x, int y, Color color, CellDataProviderIntf cellData, boolean breakable) {
         this.x = x;
         this.y = y;
-        
+
         this.color = color;
         this.CellData = cellData;
         this.breakable = breakable;
-                
+
     }
-    
+
     private int x, y;
     private Color color;
     private boolean breakable = false;
     private CellDataProviderIntf CellData;
+
+    public Point getLocation() {
+        return new Point(x, y);
+    }
 
     /**
      * @return the x
@@ -92,7 +98,5 @@ public class Barrier {
     public void setBreakable(boolean breakable) {
         this.breakable = breakable;
     }
-    
-}
 
-  
+}
