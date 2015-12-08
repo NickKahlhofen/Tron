@@ -27,7 +27,7 @@ class Computer extends Environment implements CellDataProviderIntf {
     private Grid grid;
     private Tron JB;
     private Tron JB2;
-    private ArrayList<Barrier> barriers;
+    private Barriers barriers;
 
     public Computer() {
         this.setBackground(ResourceTools.loadImageFromResource("Tron/tron.jpg").getScaledInstance(1000, 700, Image.SCALE_SMOOTH));
@@ -35,12 +35,13 @@ class Computer extends Environment implements CellDataProviderIntf {
         JB = new Tron(Direction.Left, Color.BLUE, grid);
         JB2 = new Tron(Direction.Down, Color.ORANGE, grid);
 
-        barriers = new ArrayList<>();
+        barriers = new Barriers();
         barriers.add(new Barrier(10, 15, Color.gray, this, false));
         barriers.add(new Barrier(10, 15, Color.gray, this, false));
         barriers.add(new Barrier(10, 15, Color.gray, this, false));
         barriers.add(new Barrier(10, 15, Color.gray, this, false));
         barriers.add(new Barrier(10, 15, Color.gray, this, false));
+        barriers.addBarrierRange(0, 0, 0, 35, Color.GRAY, this);
 
     }
 
@@ -82,7 +83,7 @@ class Computer extends Environment implements CellDataProviderIntf {
     public void checkIntersections() {
         if (barriers != null) {
 
-            for (Barrier barrier : barriers) {
+            for (Barrier barrier : barriers.getBarriers()) {
                 if (barrier.getLocation().equals(JB.getHead())) {
                     // System.out.println("Game Over");
                     JB.addHealth(-1000);
@@ -91,7 +92,7 @@ class Computer extends Environment implements CellDataProviderIntf {
 
             }
 
-            if (barriers.contains(JB.getHead())) {
+            if (barriers.getBarriers().contains(JB.getHead())) {
                 System.out.println("Game Over");
             }
         }
@@ -146,9 +147,10 @@ class Computer extends Environment implements CellDataProviderIntf {
         }
 
         if (barriers != null) {
-            for (int i = 0; i < barriers.size(); i++) {
-                barriers.get(i).draw(graphics);
-            }
+            barriers.draw(graphics);
+//            for (int i = 0; i < barriers.size(); i++) {
+//                barriers.get(i).draw(graphics);
+//            }
         }
     }
 
