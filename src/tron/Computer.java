@@ -5,6 +5,7 @@
  */
 package tron;
 
+import audio.AudioPlayer;
 import environment.Environment;
 import grid.Grid;
 import images.ResourceTools;
@@ -28,9 +29,10 @@ class Computer extends Environment implements CellDataProviderIntf {
     private Tron JB;
     private Tron JB2;
     private Barriers barriers;
+    private ArrayList<Item> items;
 
     public Computer() {
-        this.setBackground(ResourceTools.loadImageFromResource("Tron/tron.jpg").getScaledInstance(1000, 700, Image.SCALE_SMOOTH));
+        this.setBackground(ResourceTools.loadImageFromResource("Tron/tronbackground").getScaledInstance(1000, 700, Image.SCALE_SMOOTH));
         grid = new Grid(48, 31, 20, 20, new Point(20, 50), Color.BLUE);
         JB = new Tron(Direction.Left, Color.BLUE, grid);
         JB2 = new Tron(Direction.Down, Color.ORANGE, grid);
@@ -43,6 +45,10 @@ class Computer extends Environment implements CellDataProviderIntf {
         barriers.add(new Barrier(10, 15, Color.gray, this, false));
         barriers.addBarrierRange(0, 0, 0, 35, Color.GRAY, this);
 
+        items = new ArrayList<>();
+        items.add(new Item(10, 5, "Power_UP",
+                ResourceTools.loadImageFromResource("tron/Goldenapple.png"),
+                this));
     }
 
     @Override
@@ -121,6 +127,12 @@ class Computer extends Environment implements CellDataProviderIntf {
         } else if (e.getKeyCode() == KeyEvent.VK_A) {
             JB2.setDirection(Direction.Left);
         }
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            AudioPlayer.play("/Tron/apollo.wav");
+        }
+        if (e.getKeyCode() == KeyEvent.VK_W) {
+            AudioPlayer.play("/Tron/inpackcrash.wav");
+        }
 
     }
 
@@ -151,6 +163,11 @@ class Computer extends Environment implements CellDataProviderIntf {
 //            for (int i = 0; i < barriers.size(); i++) {
 //                barriers.get(i).draw(graphics);
 //            }
+        }
+        if (items != null) {
+            for (int i = 0; i < items.size(); i++) {
+                items.get(i).draw(graphics);
+            }
         }
     }
 
