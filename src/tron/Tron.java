@@ -68,8 +68,21 @@ public class Tron {
         }
     }
 
+    public boolean selfHit(){
+        return getTail().contains(getHead());
+    }
+    
     public Point getHead() {
         return getBody().get(HEAD_POSITION);
+    }
+
+    public ArrayList<Point> getTail() {
+        ArrayList<Point> tail = new ArrayList<>();
+        
+        for (int i = 1; i < body.size(); i++) {
+            tail.add(body.get(i));
+        }
+        return tail;
     }
 
 //<editor-fold defaultstate="collapsed" desc="Properties">

@@ -48,9 +48,7 @@ class Computer extends Environment implements CellDataProviderIntf {
         items = new ArrayList<>();
         items.add(new Item(10, 5, "Power_UP", ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));
         items.add(new Item(5, 22, "Power_UP", ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));
-        items.add(new Item(14, 3, "Power_UP", ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));
-                
-               
+        items.add(new Item(14, 3, "Power_UP", ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));   
     }
 
     @Override
@@ -65,8 +63,6 @@ class Computer extends Environment implements CellDataProviderIntf {
 
     @Override
     public void timerTaskHandler() {
-        // System.out.println("Come to me" + counter++);
-
         if (JB != null) {
             if (moveDelay >= moveDelayLimit) {
                 moveDelay = 0;
@@ -90,18 +86,34 @@ class Computer extends Environment implements CellDataProviderIntf {
 
     public void checkIntersections() {
         if (barriers != null) {
-
             for (Barrier barrier : barriers.getBarriers()) {
                 if (barrier.getLocation().equals(JB.getHead())) {
-                    // System.out.println("Game Over");
                     JB.addHealth(-1000);
-
+                    System.out.println("Game Over");
                 }
-
+                
+                if (barrier.getLocation().equals(JB2.getHead())) {
+                    JB2.addHealth(-1000);
+                    System.out.println("Game Over");
+                }
             }
-
-            if (barriers.getBarriers().contains(JB.getHead())) {
-                System.out.println("Game Over");
+        }
+        
+        //check if the snakes have hit themselves
+        if ((JB != null) && JB.selfHit()) {
+            System.out.println("JB touched himself inappropriately");
+        }
+        
+        if ((JB2 != null) && JB2.selfHit()) {
+            System.out.println("JB2 touched himself inappropriately");
+        }
+        
+        //now, check the items
+        if (items != null) {
+            for (Item item : items){
+                if (JB.getHead().equals(item.getLocation())) {
+                    System.out.println("woooooooooot");
+                }
             }
         }
     }
