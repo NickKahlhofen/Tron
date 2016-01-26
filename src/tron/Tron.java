@@ -19,15 +19,15 @@ import java.util.ArrayList;
  */
 public class Tron {
 
-    public Tron(Direction direction, Color bodyColor, Grid grid) {
+    public Tron(Point startPosition, Direction direction, Color bodyColor, Grid grid) {
         this.direction = direction;
         this.grid = grid;
         this.bodyColor = bodyColor;
 
         body = new ArrayList<>();
-        body.add(new Point(47, 2));
-        body.add(new Point(47, 1));
-        body.add(new Point(47, 0));
+        body.add(startPosition);
+//        body.add(new Point(46, 15));
+//        body.add(new Point(46, 16));
     }
 
     /**
@@ -68,6 +68,13 @@ public class Tron {
         }
     }
 
+    
+    public boolean doesPointCollide(Point point){
+        //check the point provide against all of the snakes body, if any has the
+        // same location, then return `TRUE, else return FALSE
+        return body.contains(point);
+    }
+    
     public boolean selfHit(){
         return getTail().contains(getHead());
     }
@@ -106,7 +113,15 @@ public class Tron {
      * @param direction the direction to set
      */
     public void setDirection(Direction direction) {
-        this.direction = direction;
+        if ((this.direction == Direction.Down) && !(direction == Direction.Up)) {
+            this.direction = direction;
+        } else if ((this.direction == Direction.Up) && !(direction == Direction.Down)) {
+            this.direction = direction;
+        } else if ((this.direction == Direction.Left) && !(direction == Direction.Right)) {
+            this.direction = direction;
+        } else if ((this.direction == Direction.Right) && !(direction == Direction.Left)) {
+            this.direction = direction;
+        }
     }
 
     /**
@@ -181,3 +196,10 @@ public class Tron {
         return (health > 0);
     }
 }
+
+//Public ArrayList<Point> getTrail() {
+//ArrayList <Point> trail = new ArrayList<>();
+//for(int i = 1; i < body.size(); i++) {
+//trail.add(body.get (i));
+//}
+//}
