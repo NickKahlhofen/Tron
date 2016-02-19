@@ -6,11 +6,14 @@
 package tron;
 
 import audio.AudioPlayer;
+import audio.SoundManager;
+import environment.ApplicationStarter;
 import environment.Environment;
 import grid.Grid;
 import images.ResourceTools;
 //import images.ResourceTools;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 //import java.awt.Graphics;
@@ -18,6 +21,7 @@ import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import javax.swing.text.StyleConstants;
 
 /**
  *
@@ -26,15 +30,16 @@ import java.util.ArrayList;
 class Computer extends Environment implements CellDataProviderIntf {
 
     private Grid grid;
-    private Tron JB;
-    private Tron JB2;
+    private Tron JB_Orange;
+    private Tron JB_Blue;
     private Barriers barriers;
     private ArrayList<Item> items;
     private GameState state = GameState.STOPPED;
+    private MySoundManager soundManager;
 
     public Computer() {
-        this.setBackground(ResourceTools.loadImageFromResource("Tron/tronbackground.jpg").getScaledInstance(1000, 700, Image.SCALE_SMOOTH));
-        grid = new Grid(48, 31, 20, 20, new Point(20, 50), Color.BLUE);
+        this.setBackground(ResourceTools.loadImageFromResource("Tron/tronbackground.jpg").getScaledInstance(1450, 800, Image.SCALE_SMOOTH));
+        grid = new Grid(107, 54, 13, 13, new Point(20, 50), Color.BLUE);
 //        JB = new Tron(new Point(1, grid.getRows() / 2), Direction.Left, Color.BLUE, grid);
 //        JB2 = new Tron(new Point(grid.getColumns() - 2, grid.getRows() / 2), Direction.Down, Color.ORANGE, grid);
 
@@ -43,52 +48,71 @@ class Computer extends Environment implements CellDataProviderIntf {
         barriers = new Barriers();
         barriers.add(new Barrier(0, 05, Color.gray, this, false));
 
-        barriers.addBarrierRange(0, 0, 0, 30, Color.GRAY, this);
-        barriers.addBarrierRange(0, 0, 47, 0, Color.GRAY, this);
-        barriers.addBarrierRange(1, 30, 47, 30, Color.GRAY, this);
-        barriers.addBarrierRange(47, 1, 47, 30, Color.GRAY, this);
-
+        barriers.addBarrierRange(0, 0, 0, 53, Color.GRAY, this);
+        barriers.addBarrierRange(0, 53, 106, 53, Color.GRAY, this);
+        barriers.addBarrierRange(106, 1, 106, 53, Color.GRAY, this);
+        barriers.addBarrierRange(1, 0, 106, 0, Color.GRAY, this);
         items = new ArrayList<>();
-        items.add(new Item(10, 5, "Power_UP", ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));
-        items.add(new Item(5, 22, "Power_UP", ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));
-        items.add(new Item(14, 3, "Power_UP", ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));
-        items.add(new Item(24, 3, "Invisible", ResourceTools.loadImageFromResource("tron/PotionSwift.png"), this));
+        for (int i = 0; i < 3; i++) {
+            items.add(new Item(randomInt(1, grid.getColumns()-1), randomInt(1, grid.getRows()-1), Item.POWER_UP_ORANGE, ResourceTools.loadImageFromResource("tron/Goldenapple.png"), this));        
+        }
+        
+        for (int i = 0; i < 2; i++) {
+            items.add(new Item(randomInt(1, grid.getColumns()), randomInt(1, grid.getRows()-1), Item.POWER_UP_BLUE, ResourceTools.loadImageFromResource("tron/PotionSwift.png"), this));        
+        }
+        
+        for (int i = 0; i < 1; i++) {
+            items.add(new Item(randomInt(1, grid.getColumns()), randomInt(1, grid.getRows()-1), Item.POWER_UP_INVULNERABLE, ResourceTools.loadImageFromResource("tron/PotionSwift.png"), this));        
+        }
+                for (int i = 0; i < 1; i++) {
+            items.add(new Item(randomInt(1, grid.getColumns()), randomInt(1, grid.getRows()-1), Item.POWER_UP_MAGIC, ResourceTools.loadImageFromResource("tron/Book.png"), this));        
+        }
 
+        
         state = GameState.RUNNING;
+        
     }
+    
+    //soundManager = SoundManager.getSoundManager();
+    
+    public int randomInt(int min, int max){
+        return (int) (min + (Math.random() * (max - min)));
+    }
+        
 
     @Override
     public void initializeEnvironment() {
 
     }
-    int moveDelay = 0;
-    int moveDelayLimit = 3;
+    
+    int moveDelay_Orange = 0;
+    int moveDelayLimit_Orange = 3;
 
-    int moveDelay2 = 0;
-    int moveDelayLimit2 = 3;
+    int moveDelay_Blue = 0;
+    int moveDelayLimit_Blue = 3;
 
     @Override
     public void timerTaskHandler() {
         if (state == GameState.RUNNING) {
 
-            if (JB != null) {
-                if (moveDelay >= moveDelayLimit) {
-                    moveDelay = 0;
-                    JB.move();
+            if (JB_Orange != null) {
+                if (moveDelay_Orange >= moveDelayLimit_Orange) {
+                    moveDelay_Orange = 0;
+                    JB_Orange.move();
                 } else {
-                    moveDelay++;
+                    moveDelay_Orange++;
                 }
             }
 
-            if (JB2 != null) {
-                if (moveDelay2 >= moveDelayLimit2) {
-                    moveDelay2 = 0;
-                    JB2.move();
+            if (JB_Blue != null) {
+                if (moveDelay_Blue >= moveDelayLimit_Blue) {
+                    moveDelay_Blue = 0;
+                    JB_Blue.move();
                 } else {
-                    moveDelay2++;
+                    moveDelay_Blue++;
                 }
-
             }
+
             checkIntersections();
         }
     }
@@ -96,16 +120,15 @@ class Computer extends Environment implements CellDataProviderIntf {
     public void checkIntersections() {
         if (barriers != null) {
             for (Barrier barrier : barriers.getBarriers()) {
-
 //                state = GameState.STOPPED;
-                if (barrier.getLocation().equals(JB.getHead())) {
-                    JB.addHealth(-1000);
+                if (barrier.getLocation().equals(JB_Orange.getHead())) {
+                    JB_Orange.addHealth(-1000);
                     System.out.println("Game Over");
                     resetGame();
                 }
 
-                if (barrier.getLocation().equals(JB2.getHead())) {
-                    JB2.addHealth(-1000);
+                if (barrier.getLocation().equals(JB_Blue.getHead())) {
+                    JB_Blue.addHealth(-1000);
                     System.out.println("Game Over");
                     resetGame();
                 }
@@ -114,23 +137,23 @@ class Computer extends Environment implements CellDataProviderIntf {
         }
 
         //check if the snakes have hit themselves
-        if ((JB != null) && JB.selfHit()) {
+        if ((JB_Orange != null) && JB_Orange.selfHit()) {
             System.out.println("JB touched himself inappropriately");
             state = GameState.CRASHED;
         }
 
-        if ((JB2 != null) && JB2.selfHit()) {
+        if ((JB_Blue != null) && JB_Blue.selfHit()) {
             System.out.println("JB2 touched himself inappropriately");
             state = GameState.CRASHED;
         }
 
-        if ((JB != null) && (JB2 != null)) {
-            if (JB.doesPointCollide(JB2.getHead())) {
+        if ((JB_Orange != null) && (JB_Blue != null)) {
+            if (JB_Orange.doesPointCollide(JB_Blue.getHead())) {
                 System.out.println("JB2 has crashed into JB");
                 state = GameState.CRASHED;
             }
 
-            if (JB2.doesPointCollide(JB.getHead())) {
+            if (JB_Blue.doesPointCollide(JB_Orange.getHead())) {
                 System.out.println("JB has crashed into JB");
                 state = GameState.CRASHED;
             }
@@ -139,9 +162,54 @@ class Computer extends Environment implements CellDataProviderIntf {
         //now, check the items
         if (items != null) {
             for (Item item : items) {
-                if (JB.getHead().equals(item.getLocation())) {
+                if (JB_Orange.getHead().equals(item.getLocation())) {
                     System.out.println("woooooooooot");
+                    //change position of the item that got hit;
+                    item.setX(randomInt(1, grid.getColumns()-1));
+                    item.setY(randomInt(1, grid.getRows()-1));
+
+                    //write the rules!!!!
+                    // if `PU Blue' and JB_Blue, then speed up!
+                    // if `PU Orange' and JB_Blue, then slow down!
+                    
+                    // if `PU Blue' and JB_Orange, then slow down!
+                    // if `PU Orange' and JB_Orange, then speed up!
+                    
+                    if (item.getType().equals(Item.POWER_UP_BLUE)) {
+                        moveDelayLimit_Orange++;
+                    } else if (item.getType().equals(Item.POWER_UP_ORANGE)) {
+                        moveDelayLimit_Orange--;
+                    } else if (item.getType().equals(Item.POWER_UP_MAGIC)) {
+                        JB_Orange.removeTail();
+                    }
                 }
+                
+                
+                if (JB_Blue.getHead().equals(item.getLocation())) {
+                    System.out.println("woooooooooot");
+                    //change position of the item that got hit;
+                    item.setX(randomInt(1, grid.getColumns()-1));
+                    item.setY(randomInt(1, grid.getRows()-1));
+
+                    //write the rules!!!!
+                    // if `PU Blue' and JB_Blue, then speed up!
+                    // if `PU Orange' and JB_Blue, then slow down!
+                    
+                    // if `PU Blue' and JB_Orange, then slow down!
+                    // if `PU Orange' and JB_Orange, then speed up!
+                    
+                    if (item.getType().equals(Item.POWER_UP_BLUE)) {
+                        moveDelayLimit_Blue--;
+                    } else if (item.getType().equals(Item.POWER_UP_ORANGE)) {
+                        moveDelayLimit_Blue++;    
+                    } else if (item.getType().equals(Item.POWER_UP_MAGIC)) {
+                        JB_Blue.removeTail();
+                    }
+                }
+                
+                
+                
+                
             }
         }
     }
@@ -152,30 +220,31 @@ class Computer extends Environment implements CellDataProviderIntf {
         // System.out.println("key Press " + e. getKeyCode());
         if (state == GameState.RUNNING) {
             if (e.getKeyCode() == KeyEvent.VK_UP) {
-                JB.setDirection(Direction.Up);
+                JB_Blue.setDirection(Direction.Up);
             } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                JB.setDirection(Direction.Right);
+                JB_Blue.setDirection(Direction.Right);
             } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-                JB.setDirection(Direction.Down);
+                JB_Blue.setDirection(Direction.Down);
             } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                JB.setDirection(Direction.Left);
+                JB_Blue.setDirection(Direction.Left);
             }
 
             if (e.getKeyCode() == KeyEvent.VK_W) {
-                JB2.setDirection(Direction.Up);
+                JB_Orange.setDirection(Direction.Up);
             } else if (e.getKeyCode() == KeyEvent.VK_D) {
-                JB2.setDirection(Direction.Right);
+                JB_Orange.setDirection(Direction.Right);
             } else if (e.getKeyCode() == KeyEvent.VK_S) {
-                JB2.setDirection(Direction.Down);
+                JB_Orange.setDirection(Direction.Down);
             } else if (e.getKeyCode() == KeyEvent.VK_A) {
-                JB2.setDirection(Direction.Left);
+                JB_Orange.setDirection(Direction.Left);
             }
         }
 
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-            AudioPlayer.play("/Tron/apollo.wav");
+            AudioPlayer.play("/tron/apollo.wav");
         } else if (e.getKeyCode() == KeyEvent.VK_W) {
-            AudioPlayer.play("/Tron/inpackcrash.wav");
+//            AudioPlayer.play("/tron/inpackcrash.wav");
+            //AudioPlayer.play("/tron/starwars.wav");
         } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             if (state == GameState.RUNNING) {
                 state = GameState.STOPPED;
@@ -202,12 +271,12 @@ class Computer extends Environment implements CellDataProviderIntf {
         if (grid != null) {
             grid.paintComponent(graphics);
         }
-        if (JB != null) {
-            JB.draw(graphics);
+        if (JB_Orange != null) {
+            JB_Orange.draw(graphics);
 
         }
-        if (JB2 != null) {
-            JB2.draw(graphics);
+        if (JB_Blue != null) {
+            JB_Blue.draw(graphics);
 
         }
 
@@ -222,6 +291,16 @@ class Computer extends Environment implements CellDataProviderIntf {
                 items.get(i).draw(graphics);
             }
         }
+        
+        graphics.setColor(Color.BLUE);
+        graphics.setFont(new Font("Calibri", Font.ITALIC, 35));
+        graphics.drawString("Player 1: Stark", 1100, 40);
+        
+        graphics.setColor(Color.ORANGE);
+        graphics.setFont(new Font("Calibri", Font.ITALIC, 35));
+        graphics.drawString("Player 2: Flash", 100, 40);
+        
+       
     }
 
     @Override
@@ -247,8 +326,8 @@ class Computer extends Environment implements CellDataProviderIntf {
     private void resetGame() {
 //        JB = new Tron(Direction.Left, Color.BLUE, grid);
 //        JB2 = new Tron(Direction.Down, Color.ORANGE, grid);
-        JB = new Tron(new Point(1, grid.getRows() / 2), Direction.Right, Color.ORANGE, grid);
-        JB2 = new Tron(new Point(grid.getColumns() - 2, grid.getRows() / 2), Direction.Left, Color.BLUE, grid);
+        JB_Orange = new Tron(new Point(10, grid.getRows() / 2), Direction.Right, Color.ORANGE, grid);
+        JB_Blue = new Tron(new Point(grid.getColumns() - 10, grid.getRows() / 2), Direction.Left, Color.BLUE, grid);
         state = GameState.STOPPED;
     }
 }

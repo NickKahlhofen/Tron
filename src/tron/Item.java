@@ -22,7 +22,6 @@ public class Item {
                             cellData.getSystemCoordY(x, y),
                             cellData.getCellWidth(),
                             cellData.getCellhight(), null);
-   
     }
     
     public Item(int x, int y, String type, Image image,
@@ -32,11 +31,18 @@ public class Item {
         this.type = type;
         this.image = image;
         this.cellData = cellData;
-        
+        // Item werden zufaellig gespawned und die Items Von JB1 werden gut fuer Jb1 ( Item verschnellern JB1) sein Werden allerdings JB2 verlangsammen. 
+        // Die kann ein Vorteil fuer Jb1 und JB2 sein. 
+        // Also JB 1 Pub Gut / Schlecht JB2
+        // Also JB 2 PUY Gut / Schlecht JB1
     }
     
+    public static final String POWER_UP_MAGIC = "MAGIC";
+    public static final String POWER_UP_BLUE = "PUB";
+    public static final String POWER_UP_ORANGE = "PUY";
+    public static final String POWER_UP_INVULNERABLE = "PINV";
     
-    //<editor-fold defaultstate="collapsed" desc="Proverties Items">
+    //<editor-fold defaultstate="collapsed" desc="Properties Items">
     private int x, y;
     private String type;
     private Image image;

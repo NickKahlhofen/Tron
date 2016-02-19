@@ -34,7 +34,7 @@ public class Tron {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ApplicationStarter.run(args, "Tron", new Dimension(1000, 710), new Computer());
+        ApplicationStarter.run(args, "Tron", new Dimension(1500, 900), new Computer());
     }
 
     public void draw(Graphics graphics) {
@@ -194,6 +194,12 @@ public class Tron {
 
     public boolean isAlive() {
         return (health > 0);
+    }
+
+    void removeTail() {
+        for (int i = body.size()-1; i >0; i--) {
+            body.remove(i);
+        }
     }
 }
 
